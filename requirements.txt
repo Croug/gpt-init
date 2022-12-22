@@ -1,0 +1,3 @@
+pyreadline3
+setuptools
+git+https://github.com/mmabrouk/chatgpt-wrapper
