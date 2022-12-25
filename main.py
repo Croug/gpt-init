@@ -41,7 +41,10 @@ def count_depth(s):
 def parse_tree(s):
   ret = []
   path = []
+  max_depth = 0
   for line in s.splitlines():
+    if count_depth(line) > max_depth:
+      max_depth = count_depth(line)
     if count_depth(line) < len(path):
       path = path[:count_depth(line)]
 
@@ -50,7 +53,7 @@ def parse_tree(s):
     if line.strip()[-1] == '/':
       path.append(line.strip()[:-1])
 
-  return ret
+  return ret, max_depth
 
 def build_tree(files):
   for file in files:
@@ -98,14 +101,21 @@ while True:
 sep()
 print("Please wait while I generate your project outline...")
 resp = bot.ask(""" [The user has indicated that they are ready to move onto the generation step, and I will now proceed to ask you questions about the project structure you have developed. Please send me the file structure of the outline you have helped create. The output will be fed directly into a directory parser so please ensure the directory structure follows the format described exactly, and is contained within the first code block. Each file or directory should be on it's own line. If it's a directory it should end with "/". The first item should be the project root. Files and directories should appear underneath their parent, indented once more than their parent. Use 2 spaces to indent.] """)
-tree, txt = find_text(resp, "```", "```")
+tree = extract_code(resp)
+
+
+files, max_depth = parse_tree(tree)
+
+if max_depth < 1:
+  resp = bot.ask(""" [The file structure you have provided is not valid, it appears that the children were not properly indented. Please send me the file structure of the outline you have helped create. The output will be fed directly into a directory parser so please ensure the directory structure follows the format described exactly, and is contained within the first code block. Each file or directory should be on it's own line. If it's a directory it should end with "/". The first item should be the project root. Files and directories should appear underneath their parent, indented once more than their parent. Use 2 spaces to indent.] """)
+  tree = extract_code(resp)
+  files, _ = parse_tree(tree)
 
 sep()
 print("This is the file structure we will be using...")
 print(tree)
 sep()
 
-files = parse_tree(tree)
 build_tree(files)
 
 for file in files:
