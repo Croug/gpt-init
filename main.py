@@ -100,17 +100,22 @@ while True:
 
 sep()
 print("Please wait while I generate your project outline...")
-resp = bot.ask(""" [The user has indicated that they are ready to move onto the generation step, and I will now proceed to ask you questions about the project structure you have developed. Please send me the file structure of the outline you have helped create. The output will be fed directly into a directory parser so please ensure the directory structure follows the format described exactly, and is contained within the first code block. Each file or directory should be on it's own line. If it's a directory it should end with "/". The first item should be the project root. Files and directories should appear underneath their parent, indented once more than their parent. Use 2 spaces to indent.] """)
+resp = bot.ask(""" [The user has indicated that they are ready to move onto the generation step, and I will now proceed to ask you questions about the project structure you have developed. Please send me the file structure of the outline you have helped create. The contents of the first code block will be fed directly into a directory parser so please ensure the directory structure follows the format described exactly, and is contained within the first code block. Each file or directory should be on it's own line. If it's a directory it should end with "/". The first item should be the project root. Files and directories should appear underneath their parent, indented once more than their parent. Use 2 spaces to indent.] """)
 tree = extract_code(resp)
 
 
 files, max_depth = parse_tree(tree)
 
+if not len(files):
+  resp = bot.ask(""" [The file structure you have provided is not valid, it appears that the file structure was either empty or not entirely contained within the first code block. Please send me the file structure of the outline you have helped create. The contents of the first code block will be fed directly into a directory parser so please ensure the directory structure follows the format described exactly, and is contained within the first code block. Each file or directory should be on it's own line. If it's a directory it should end with "/". The first item should be the project root. Files and directories should appear underneath their parent, indented once more than their parent. Use 2 spaces to indent.] """)
+  tree = extract_code(resp)
+  files, max_depth = parse_tree(tree)
+
 if max_depth < 1:
-  resp = bot.ask(""" [The file structure you have provided is not valid, it appears that the children were not properly indented. Please send me the file structure of the outline you have helped create. The output will be fed directly into a directory parser so please ensure the directory structure follows the format described exactly, and is contained within the first code block. Each file or directory should be on it's own line. If it's a directory it should end with "/". The first item should be the project root. Files and directories should appear underneath their parent, indented once more than their parent. Use 2 spaces to indent.] """)
+  resp = bot.ask(""" [The file structure you have provided is not valid, it appears that the children were not properly indented. Please send me the file structure of the outline you have helped create. The contents of the first code block will be fed directly into a directory parser so please ensure the directory structure follows the format described exactly, and is contained within the first code block. Each file or directory should be on it's own line. If it's a directory it should end with "/". The first item should be the project root. Files and directories should appear underneath their parent, indented once more than their parent. Use 2 spaces to indent.] """)
   tree = extract_code(resp)
   files, _ = parse_tree(tree)
-
+  
 sep()
 print("This is the file structure we will be using...")
 print(tree)
